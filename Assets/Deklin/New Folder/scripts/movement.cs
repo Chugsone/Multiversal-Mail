@@ -14,6 +14,7 @@ public class movement : MonoBehaviour
     public bool MovementSwitch;
     public bool Running;
     public bool Walk;
+    public Vector3 movementtttt;
     private float moveHorizontal;
     private float moveVertical;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -28,6 +29,7 @@ public class movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        rb.AddForce(movementtttt * accelerate);
         if (clamping) 
         { 
           rb.linearVelocity = new Vector3
@@ -43,10 +45,12 @@ public class movement : MonoBehaviour
     {
         if (MovementSwitch == true)
         {
+            moveHorizontal = ctx.ReadValue<Vector2>().x;
+            moveVertical = ctx.ReadValue<Vector2>().y;
 
-          Vector3 movement = Camera.main.transform.right * moveHorizontal + Camera.main.transform.forward * moveVertical;
-          movement.y = 0;
-          rb.AddForce(movement * accelerate);
+            movementtttt = Camera.main.transform.right * moveHorizontal + Camera.main.transform.forward * moveVertical;
+          movementtttt.y = 0;
+        
         }
     }
     public void jump (InputAction.CallbackContext ctx)
