@@ -28,12 +28,15 @@ public class movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        rb.linearVelocity = new Vector3(
-               Mathf.Clamp(rb.linearVelocity.x, -topSpeed, topSpeed),
-               rb.linearVelocity.y,
-               Mathf.Clamp(rb.linearVelocity.z, -topSpeed, topSpeed));
-
+        if (clamping) 
+        { 
+          rb.linearVelocity = new Vector3
+          (
+             Mathf.Clamp(rb.linearVelocity.x, -topSpeed, topSpeed),
+             rb.linearVelocity.y,
+             Mathf.Clamp(rb.linearVelocity.z, -topSpeed, topSpeed)
+          );
+        }
 
     }
     public void Movement(InputAction.CallbackContext ctx)
