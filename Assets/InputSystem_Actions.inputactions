@@ -496,8 +496,8 @@
                 {
                     "name": "",
                     "id": "279ab5d0-7aee-4561-953f-a996ddbaef4f",
-                    "path": "<Keyboard>/leftShift",
-                    "interactions": "",
+                    "path": "<Keyboard>/q",
+                    "interactions": "Press",
                     "processors": "",
                     "groups": "",
                     "action": "dash",

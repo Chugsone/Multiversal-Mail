@@ -41,7 +41,7 @@ public class dash : MonoBehaviour
     {
         candash = false;
 
-        yield return new WaitForSeconds(8);
+        yield return new WaitForSeconds(3);
 
         candash = true;
     }
@@ -50,7 +50,7 @@ public class dash : MonoBehaviour
         dashing = false;
         GetComponent<movement>().MovementSwitch = false;
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(3);
 
         GetComponent<movement>().MovementSwitch = true;
 
