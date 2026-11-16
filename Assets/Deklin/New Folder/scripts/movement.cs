@@ -35,7 +35,7 @@ public class movement : MonoBehaviour
           rb.linearVelocity = new Vector3
           (
              Mathf.Clamp(rb.linearVelocity.x, -topSpeed, topSpeed),
-             rb.linearVelocity.y,
+              Mathf.Clamp(rb.linearVelocity.y, -topSpeed, topSpeed),
              Mathf.Clamp(rb.linearVelocity.z, -topSpeed, topSpeed)
           );
         }

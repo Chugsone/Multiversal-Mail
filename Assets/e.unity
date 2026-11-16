@@ -733,7 +733,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::dash
   candash: 1
   dashing: 0
-  dashSpeed: 250
+  dashSpeed: 350
   dashcooldowntime: 3
   hitwall: 3
   player: {fileID: 1821446793}
