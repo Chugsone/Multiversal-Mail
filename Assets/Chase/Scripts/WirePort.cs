@@ -1,29 +1,66 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class WirePort : MonoBehaviour, IDropHandler
 {
-    public string wireColor; // Must match the corresponding Port# string
-    public Color visualColor = Color.red;
-    public Image wireLineEnd; // Drag child WireLineEnd# here
-    private bool isOccupied = false;
+    public string portColor;
 
-    void Start()
+    public Color normalColor;
+    public Color connectedColor;
+    public Color wrongColor;
+
+    private Image portImage;
+    private bool isOccupied;
+
+    private void Awake()
     {
-        GetComponent<Image>().color = visualColor;
-        if (wireLineEnd != null) wireLineEnd.color = visualColor;
+        portImage = GetComponent<Image>();
+
+        if (portImage == null)
+        {
+            Debug.LogError($"{name} needs an Image component.");
+            return;
+        }
+
+        portImage.color = normalColor;
     }
 
     public void OnDrop(PointerEventData eventData)
     {
-        if (isOccupied || eventData.pointerDrag == null) return;
+        Debug.Log($"{name}: OnDrop received");
 
-        Wire draggedWire = eventData.pointerDrag.GetComponent<Wire>();
-        if (draggedWire != null && draggedWire.wireColor == this.wireColor)
+        if (isOccupied)
+            return;
+
+        if (eventData.pointerDrag == null)
         {
-            isOccupied = true;
-            draggedWire.ConnectToPort(GetComponent<RectTransform>());
+            Debug.Log("No pointerDrag object.");
+            return;
         }
+
+        Wire wire =
+            eventData.pointerDrag.GetComponentInParent<Wire>();
+
+        if (wire == null)
+        {
+            Debug.Log("No Wire component found on dragged object.");
+            return;
+        }
+
+        if (wire.wireColor.Trim().ToLower() !=
+            portColor.Trim().ToLower())
+        {
+            portImage.color = wrongColor;
+            Debug.Log("Wrong wire color.");
+            return;
+        }
+
+        isOccupied = true;
+        portImage.color = connectedColor;
+
+        wire.ConnectToPort(
+            GetComponent<RectTransform>()
+        );
     }
 }

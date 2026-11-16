@@ -107,9 +107,15 @@
                     "priority": 0
                 },
                 {
+<<<<<<< HEAD
                     "name": "CamSwitch",
                     "type": "Button",
                     "id": "078cda99-adbb-4a2a-a1e0-3250655aeac5",
+=======
+                    "name": "Drag",
+                    "type": "Button",
+                    "id": "d8db7b67-9a58-41de-89f1-027c4bdb19c2",
+>>>>>>> 6550e24aa6d9a5d2d7d5c44481af5eef61516320
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -516,12 +522,21 @@
                 },
                 {
                     "name": "",
+<<<<<<< HEAD
                     "id": "b4a7f00d-0f9d-47cc-b45c-0b640129d3ce",
                     "path": "<Keyboard>/f",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "CamSwitch",
+=======
+                    "id": "475152e7-672c-448a-b57d-b155822f5897",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+>>>>>>> 6550e24aa6d9a5d2d7d5c44481af5eef61516320
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

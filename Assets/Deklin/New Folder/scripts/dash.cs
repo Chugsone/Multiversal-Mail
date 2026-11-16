@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 public class dash : MonoBehaviour
 {
     public bool candash = true;
+    public Vector3 dashple;
     public bool dashing;
     public float dashSpeed = 100f;
     public float dashcooldowntime = 18f;
@@ -33,7 +34,9 @@ public class dash : MonoBehaviour
                 dashing = true;
                 StartCoroutine(movementWallCooldown());
                 StartCoroutine(dashcooldown());
-
+                dashDirection.y = -1;
+                dashDirection.x = 1;
+                dashDirection.z = 1;
             }
         }
     }
@@ -50,7 +53,7 @@ public class dash : MonoBehaviour
         dashing = false;
         GetComponent<movement>().MovementSwitch = false;
 
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(1.2f);
 
         GetComponent<movement>().MovementSwitch = true;
 
