@@ -1,83 +1,142 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class Wire : MonoBehaviour, IPointerDownHandler, IDragHandler, IEndDragHandler
+public class Wire : MonoBehaviour,
+    IPointerDownHandler,
+    IBeginDragHandler,
+    IDragHandler,
+    IEndDragHandler
 {
-    public string wireColor; // e.g., "Red", "Blue", "Yellow", "Pink"
+    public string wireColor;
     public Color visualColor = Color.red;
-    public RectTransform wireLine; // Drag child WireLine# here
+    public RectTransform wireLine;
     public WireManager wireManager;
 
-    private Canvas parentCanvas;
-    private RectTransform canvasRect;
-    private bool isConnected = false;
+    private RectTransform lineParent;
+    private CanvasGroup canvasGroup;
+    private bool isConnected;
 
-    void Start()
+    private void Awake()
     {
-        parentCanvas = GetComponentInParent<Canvas>();
-        canvasRect = parentCanvas.GetComponent<RectTransform>();
+        if (wireLine == null)
+        {
+            Debug.LogError($"{name}: WireLine is not assigned.");
+            enabled = false;
+            return;
+        }
 
-        GetComponent<Image>().color = visualColor;
-        if (wireLine != null) wireLine.GetComponent<Image>().color = visualColor;
+        lineParent = wireLine.parent as RectTransform;
+
+        canvasGroup = GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+            canvasGroup = gameObject.AddComponent<CanvasGroup>();
+
+        Image wireImage = GetComponent<Image>();
+        if (wireImage != null)
+            wireImage.color = visualColor;
+
+        Image lineImage = wireLine.GetComponent<Image>();
+        if (lineImage != null)
+        {
+            lineImage.color = visualColor;
+            lineImage.raycastTarget = false;
+        }
 
         ResetWire();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (isConnected) return;
-        UpdateWire(eventData.position);
+        if (!isConnected)
+            UpdateWire(eventData.position, eventData.pressEventCamera);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (isConnected)
+            return;
+
+        canvasGroup.blocksRaycasts = false;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (isConnected) return;
-        UpdateWire(eventData.position);
+        if (isConnected)
+            return;
+
+        UpdateWire(eventData.position, eventData.pressEventCamera);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (isConnected) return;
-        ResetWire();
+        canvasGroup.blocksRaycasts = true;
+
+        if (!isConnected)
+            ResetWire();
+    }
+
+    private void UpdateWire(Vector2 screenPosition, Camera eventCamera)
+    {
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                lineParent,
+                screenPosition,
+                eventCamera,
+                out Vector2 mousePosition))
+        {
+            return;
+        }
+
+        Vector2 startPosition =
+            lineParent.InverseTransformPoint(wireLine.position);
+
+        StretchLine(mousePosition - startPosition);
     }
 
     public void ConnectToPort(RectTransform portTransform)
     {
+        if (isConnected)
+            return;
+
+        Vector2 startPosition =
+            lineParent.InverseTransformPoint(wireLine.position);
+
+        Vector2 portCenter =
+            lineParent.InverseTransformPoint(portTransform.position);
+
+        Vector2 direction = portCenter - startPosition;
+
+        StretchLine(direction);
+
         isConnected = true;
 
-        // Snap wire end directly to the center of the target EndPort#
-        Vector3 worldCenter = portTransform.position;
-        Vector2 localStart = wireLine.parent.InverseTransformPoint(wireLine.position);
-        Vector2 localEnd = wireLine.parent.InverseTransformPoint(worldCenter);
+        Debug.Log($"{name} snapped to {portTransform.name}");
 
-        StretchLine(localEnd - localStart);
-        wireManager.CheckCompletion();
-    }
-
-    private void UpdateWire(Vector2 screenPosition)
-    {
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvasRect,
-            screenPosition,
-            parentCanvas.worldCamera,
-            out Vector2 localMousePos
-        );
-
-        Vector2 startPos = canvasRect.InverseTransformPoint(wireLine.position);
-        StretchLine(localMousePos - startPos);
+        if (wireManager != null)
+            wireManager.CheckCompletion();
     }
 
     private void StretchLine(Vector2 direction)
     {
-        wireLine.sizeDelta = new Vector2(direction.magnitude, wireLine.sizeDelta.y);
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        wireLine.localRotation = Quaternion.Euler(0, 0, angle);
+        wireLine.sizeDelta = new Vector2(
+            direction.magnitude,
+            wireLine.sizeDelta.y
+        );
+
+        wireLine.localRotation = Quaternion.Euler(
+            0f,
+            0f,
+            Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg
+        );
     }
 
     private void ResetWire()
     {
-        wireLine.sizeDelta = new Vector2(0, wireLine.sizeDelta.y);
+        wireLine.sizeDelta = new Vector2(
+            0f,
+            wireLine.sizeDelta.y
+        );
+
         wireLine.localRotation = Quaternion.identity;
     }
 }

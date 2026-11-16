@@ -10,6 +10,7 @@ public class WireManager : MonoBehaviour
         connectedWires++;
         if (connectedWires >= totalWires)
         {
+            gameObject.SetActive(false);
             Debug.Log("Wire Task Complete!");
         }
     }
