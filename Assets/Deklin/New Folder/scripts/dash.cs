@@ -5,9 +5,8 @@ using UnityEngine.InputSystem;
 public class dash : MonoBehaviour
 {
     public bool candash = true;
-    public Vector3 dashple;
     public bool dashing;
-    public float dashSpeed = 100f;
+    public float dashSpeed = 600f;
     public float dashcooldowntime = 18f;
     public float hitwall = 3f;
     public GameObject player;
@@ -30,13 +29,16 @@ public class dash : MonoBehaviour
             if (GetComponent<movement>().IsGrounded == false && ctx.performed)
             {
                 Vector3 dashDirection = Camera.main.transform.forward;
+                dashDirection.y = 0;
+                
+               
                 rb.AddForce(dashDirection * dashSpeed, ForceMode.VelocityChange);
                 dashing = true;
                 StartCoroutine(movementWallCooldown());
                 StartCoroutine(dashcooldown());
-                dashDirection.y = -1;
-                dashDirection.x = 1;
-                dashDirection.z = 1;
+              
+                dashDirection.x = 10;
+                dashDirection.z = 10;
             }
         }
     }
@@ -50,11 +52,11 @@ public class dash : MonoBehaviour
     }
     IEnumerator movementWallCooldown()
     {
-        dashing = false;
+        
         GetComponent<movement>().MovementSwitch = false;
 
-        yield return new WaitForSeconds(1.2f);
-
+        yield return new WaitForSeconds(0.50f);
+        dashing = false;
         GetComponent<movement>().MovementSwitch = true;
 
     }
