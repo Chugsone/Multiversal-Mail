@@ -21,7 +21,7 @@ public class TorsoMovement : MonoBehaviour
     {
         _controls.Enable();
 
-        _controls.Player.CamSwitch.performed += ctx =>
+        //_controls.Player.CamSwitch.performed += ctx =>
         {
             Debug.Log("yo");
             camController.CamSwitch();
