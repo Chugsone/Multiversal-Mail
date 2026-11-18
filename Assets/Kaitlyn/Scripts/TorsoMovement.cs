@@ -25,14 +25,16 @@ public class TorsoMovement : MonoBehaviour
     [Space(3f)]
     public LayerMask grappleable;
     public float maxGrappleDistance;
-    public float grapplDelay;
+    public float grappleDelay;
     [Space(4f)]
     public float grappleCooldown;
     private float grappleCDTimer;
-
+    
     private bool _grappling;
     private Vector3 _grapplePoint;
 
+    public LineRenderer lr;
+   
     [Space(7f)]
     public CamTest _camController;
     private InputSystem_Actions _controls;
@@ -50,10 +52,10 @@ public class TorsoMovement : MonoBehaviour
         LastDirection = transform.forward;
 
 
-        //_controls.Player.CamSwitch.performed += ctx =>
-        //{    
-        //    _camController.CamSwitch();
-        //};
+        _controls.Player.CamSwitch.performed += ctx =>
+        {    
+            _camController.CamSwitch();
+        };
 
         #region Walking
         float deadzoneAngle = _camController.horizontalDeadzoneAngle;
@@ -69,14 +71,15 @@ public class TorsoMovement : MonoBehaviour
         _controls.Player.Move.canceled += ctx =>
         {
             _moveInput = Vector2.zero;
+            //_rb.linearVelocity = Vector2.zero;
             _camController.horizontalDeadzoneAngle = deadzoneAngle; //reset the deadzone angle when you stop moving
         };
         #endregion
 
-        //_controls.Player.Grapple.performed += ctx =>
-        //{    
-        //    StartGrapple();
-        //};
+        _controls.Player.Grapple.performed += ctx =>
+        {    
+            StartGrapple();
+        };
     }
 
     void OnEnable()
@@ -93,10 +96,14 @@ public class TorsoMovement : MonoBehaviour
     {
 
     }
-
     
     void Update()
     {
+        if(grappleCDTimer > 0)
+        {
+            grappleCDTimer -= Time.deltaTime;
+        }
+
         GameObject camera = _camController.gameObject;
         _camController._MouseInput = _controls.Player.Look.ReadValue<Vector2>();
 
@@ -110,7 +117,7 @@ public class TorsoMovement : MonoBehaviour
         _isMovingDownSlope = IsMovingDownSlope(moveDirection);
         Vector3 adjustedMoveDirection = AdjustMovementToSlope(moveDirection);
         adjustedMoveDirection = adjustedMoveDirection.normalized;
-        adjustedMoveDirection.y = _movementVelocity.y;
+        adjustedMoveDirection.y = 0;
 
         #region direction
 
@@ -119,9 +126,8 @@ public class TorsoMovement : MonoBehaviour
             LastDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
         }
 
-        LookingDirection = forward.normalized;
+        //LookingDirection = forward.normalized;
         #endregion
-
 
         if (_moveInput.magnitude > 0.01f)
         {
@@ -130,6 +136,7 @@ public class TorsoMovement : MonoBehaviour
         }
         else
         {
+
             _movementVelocity.x -= _movementVelocity.x * (Time.deltaTime * 5);
             _movementVelocity.z -= _movementVelocity.z * (Time.deltaTime * 5);
 
@@ -149,6 +156,14 @@ public class TorsoMovement : MonoBehaviour
         _isGrounded = Physics.CheckBox(_groundCheckPoint.position, _groundCheckSize / 2, _groundCheckPoint.rotation, groundLayer);
     }
 
+    private void LateUpdate()
+    {
+        if (_grappling)
+        {
+            lr.SetPosition(0, _camController.transform.position);
+        }
+    }
+    
     private Vector3 AdjustMovementToSlope(Vector3 inputDir)
     {
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, groundLayer))
@@ -192,10 +207,25 @@ public class TorsoMovement : MonoBehaviour
     public void StartGrapple()
     {
         if (grappleCDTimer > 0) return;
+        GameObject camera = _camController.gameObject;
 
         _grappling = true;
 
         RaycastHit hit;
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, maxGrappleDistance, grappleable))
+        {
+            _grapplePoint = hit.point;
+
+            Invoke(nameof(ExecuteGrapple), grappleDelay);
+        }
+        else
+        {
+            _grapplePoint = camera.transform.position + camera.transform.forward * maxGrappleDistance;
+            Invoke(nameof(StopGrapple), grappleDelay);
+        }
+
+        lr.enabled = true;
+        lr.SetPosition(1, _grapplePoint);
     }
 
     public void ExecuteGrapple()
@@ -205,7 +235,11 @@ public class TorsoMovement : MonoBehaviour
 
     public void StopGrapple()
     {
+        _grappling = false;
 
+        grappleCDTimer = grappleCooldown;
+
+        lr.enabled = false;
     }
 
     private void OnDrawGizmos()
