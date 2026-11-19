@@ -374,7 +374,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineBrain
   ShowDebugText: 0
-  ShowCameraFrustum: 1
+  ShowCameraFrustum: 0
   IgnoreTimeScale: 0
   WorldUpOverride: {fileID: 0}
   ChannelMask: -1
@@ -414,7 +414,7 @@ MonoBehaviour:
   horizontalDeadzoneAngle: 80
   verticalMinAngle: 56
   verticalMaxAngle: 90
-  isLocked: 0
+  isLocked: 1
   _resetXRotation: 0
   _MouseInput: {x: 0, y: 0}
 --- !u!1 &663200964
@@ -867,7 +867,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!1 &1066862595
 GameObject:

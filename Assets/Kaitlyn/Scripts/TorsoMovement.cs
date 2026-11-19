@@ -71,7 +71,7 @@ public class TorsoMovement : MonoBehaviour
         _controls.Player.Move.canceled += ctx =>
         {
             _moveInput = Vector2.zero;
-            //_rb.linearVelocity = Vector2.zero;
+            _rb.linearVelocity = Vector2.zero;
             _camController.horizontalDeadzoneAngle = deadzoneAngle; //reset the deadzone angle when you stop moving
         };
         #endregion
@@ -126,7 +126,7 @@ public class TorsoMovement : MonoBehaviour
             LastDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
         }
 
-        //LookingDirection = forward.normalized;
+        LookingDirection = forward.normalized;
         #endregion
 
         if (_moveInput.magnitude > 0.01f)
@@ -136,12 +136,8 @@ public class TorsoMovement : MonoBehaviour
         }
         else
         {
-
-            _movementVelocity.x -= _movementVelocity.x * (Time.deltaTime * 5);
-            _movementVelocity.z -= _movementVelocity.z * (Time.deltaTime * 5);
-
-            if (Mathf.Abs(_movementVelocity.x) < 0.01f) _movementVelocity.x = 0f;
-            if (Mathf.Abs(_movementVelocity.z) < 0.01f) _movementVelocity.z = 0f;
+            _movementVelocity.x = 0;
+            _movementVelocity.z = 0;         
         }
 
         Vector3 finalMovement = (_movementVelocity * Time.deltaTime);
@@ -160,7 +156,7 @@ public class TorsoMovement : MonoBehaviour
     {
         if (_grappling)
         {
-            lr.SetPosition(0, _camController.transform.position);
+            lr.SetPosition(0, transform.position);
         }
     }
     
@@ -212,7 +208,7 @@ public class TorsoMovement : MonoBehaviour
         _grappling = true;
 
         RaycastHit hit;
-        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, maxGrappleDistance, grappleable))
+        if (Physics.Raycast(transform.position, camera.transform.forward, out hit, maxGrappleDistance, grappleable))
         {
             _grapplePoint = hit.point;
 
