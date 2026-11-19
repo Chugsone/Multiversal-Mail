@@ -39,7 +39,10 @@ public class movement : MonoBehaviour
              Mathf.Clamp(rb.linearVelocity.z, -topSpeed, topSpeed)
           );
         }
+        Vector3 Direction = Camera.main.transform.forward;
+        Direction.y = 0;
 
+        transform.forward = Direction;
     }
     public void Movement(InputAction.CallbackContext ctx)
     {
@@ -48,7 +51,7 @@ public class movement : MonoBehaviour
             moveHorizontal = ctx.ReadValue<Vector2>().x;
             moveVertical = ctx.ReadValue<Vector2>().y;
 
-            movementtttt = Camera.main.transform.right * moveHorizontal + Camera.main.transform.forward * moveVertical;
+            movementtttt = transform.right * moveHorizontal + transform.forward * moveVertical;
           movementtttt.y = 0;
         
         }
