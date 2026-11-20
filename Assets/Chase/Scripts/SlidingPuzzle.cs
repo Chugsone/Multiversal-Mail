@@ -59,7 +59,7 @@ public class SlidingPuzzle : MonoBehaviour
     {
      if(Input.GetMouseButtonDown(0))
         {
-            RaycastHit2D hit = phy
+            //RaycastHit2D hit = phy
         }
     }
 }
