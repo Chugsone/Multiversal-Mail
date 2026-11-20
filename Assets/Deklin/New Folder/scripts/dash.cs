@@ -11,14 +11,14 @@ public class dash : MonoBehaviour
     public float hitwall = 3f;
     public GameObject player;
     public Rigidbody rb;
-    public ParticleSystem trail;
+    public GameObject trail;
     public ParticleSystem Funnalpartical;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-       
+        trail.SetActive(false);
     }
 
     // Update is called once per frame
@@ -37,8 +37,8 @@ public class dash : MonoBehaviour
                 dashDirection.y = 0;
                 if (dashing)
                 {
-                    trail.Emit(1);
-                   Funnalpartical.Emit(20);
+                    trail.SetActive(true);
+                    Funnalpartical.Emit(20);
                     
                     Vector3 position = transform.position + Camera.main.transform.forward * 2;
                     position.y = transform.position.y;
@@ -80,7 +80,7 @@ public class dash : MonoBehaviour
         dashing = false;
         GetComponent<movement>().MovementSwitch = true;
         yield return new WaitForSeconds(0.50f);
-        
+        trail.SetActive(false);
 
     }
 }
