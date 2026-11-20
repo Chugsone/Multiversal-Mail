@@ -1,5 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
+using UnityEngine.Splines.Interpolators;
 
 public class TorsoMovement : MonoBehaviour
 {
@@ -12,7 +15,7 @@ public class TorsoMovement : MonoBehaviour
     [Space(7f)]
     [Header("Ground Check Settings")]
     [Space(3f)]
-    public float groundCheckDistance = 6f;
+    public float groundCheckDistance = 1.25f;
     public LayerMask groundLayer;
 
     [SerializeField] private Transform _groundCheckPoint;
@@ -29,12 +32,25 @@ public class TorsoMovement : MonoBehaviour
     [Space(4f)]
     public float grappleCooldown;
     private float grappleCDTimer;
-    
+
+    private bool _freeze;
     private bool _grappling;
     private Vector3 _grapplePoint;
 
     public LineRenderer lr;
-   
+
+    [Space(7f)]
+    [Header("Climb Settings")]
+    [Space(3f)]
+
+    public LayerMask climbable;
+
+    public float climbSpeed = 8f;
+
+    [SerializeField] private float wallCheckRadius;
+    [SerializeField] private float wallCheckOffset;
+    private bool _isClimbing;
+
     [Space(7f)]
     public CamTest _camController;
     private InputSystem_Actions _controls;
@@ -104,6 +120,11 @@ public class TorsoMovement : MonoBehaviour
             grappleCDTimer -= Time.deltaTime;
         }
 
+        if (_freeze)
+        {
+            _rb.linearVelocity = Vector3.zero;
+        }
+
         GameObject camera = _camController.gameObject;
         _camController._MouseInput = _controls.Player.Look.ReadValue<Vector2>();
 
@@ -149,7 +170,10 @@ public class TorsoMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        Vector3 forward = _camController.transform.forward;
+
         _isGrounded = Physics.CheckBox(_groundCheckPoint.position, _groundCheckSize / 2, _groundCheckPoint.rotation, groundLayer);
+        Physics.OverlapSphere(transform.position + (forward * wallCheckOffset), wallCheckRadius, climbable);
     }
 
     private void LateUpdate()
@@ -206,6 +230,7 @@ public class TorsoMovement : MonoBehaviour
         GameObject camera = _camController.gameObject;
 
         _grappling = true;
+        //_freeze = true;
 
         RaycastHit hit;
         if (Physics.Raycast(transform.position, camera.transform.forward, out hit, maxGrappleDistance, grappleable))
@@ -226,12 +251,34 @@ public class TorsoMovement : MonoBehaviour
 
     public void ExecuteGrapple()
     {
+        StartCoroutine(Grapple());
+    }
 
+    public IEnumerator Grapple()
+    {
+        //_freeze = false;
+        float time = 0;
+        Vector3 startPos = transform.position;
+        Vector3 endPos = _grapplePoint;
+        while (startPos != endPos)
+        {
+            startPos = transform.position;
+            time += Time.deltaTime;
+
+            transform.position = Vector3.Lerp(startPos, endPos, time / 5);
+            yield return null;
+        }
+
+
+
+        Invoke(nameof(StopGrapple), 0);
+        yield return null;
     }
 
     public void StopGrapple()
     {
         _grappling = false;
+        _freeze = false;
 
         grappleCDTimer = grappleCooldown;
 
