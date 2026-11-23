@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Android.Gradle.Manifest;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Splines.Interpolators;
@@ -10,6 +11,10 @@ public class TorsoMovement : MonoBehaviour
     [Space(3f)]
     public float walkSpeed = 5f;
     public float slopeLimit;
+
+    public float gravityMult;
+    private float gravity = -9.81f;
+
     private Rigidbody _rb;
 
     [Space(7f)]
@@ -28,6 +33,7 @@ public class TorsoMovement : MonoBehaviour
     [Space(3f)]
     public LayerMask grappleable;
     public float maxGrappleDistance;
+    [Tooltip("How far from the wall you stop after grappling")]public float grappleOffset;
     public float grappleDelay;
     [Space(4f)]
     public float grappleCooldown;
@@ -135,10 +141,20 @@ public class TorsoMovement : MonoBehaviour
         right.Normalize();
 
         Vector3 moveDirection = (forward * _moveInput.y) + (right * _moveInput.x);
+
+        if (_isClimbing)
+        {
+            //moveDirection = new Vector3(0, (forward * _moveInput.y), + (right * _moveInput.x));
+        }
+        else
+        {
+            moveDirection = (forward * _moveInput.y) + (right * _moveInput.x);
+        }
+
         _isMovingDownSlope = IsMovingDownSlope(moveDirection);
         Vector3 adjustedMoveDirection = AdjustMovementToSlope(moveDirection);
         adjustedMoveDirection = adjustedMoveDirection.normalized;
-        adjustedMoveDirection.y = 0;
+        adjustedMoveDirection.y = _movementVelocity.y;
 
         #region direction
 
@@ -163,7 +179,7 @@ public class TorsoMovement : MonoBehaviour
 
         Vector3 finalMovement = (_movementVelocity * Time.deltaTime);
 
-        testr = finalMovement;
+        testr = moveDirection;
 
         _rb.linearVelocity = _movementVelocity;
     }
@@ -173,7 +189,17 @@ public class TorsoMovement : MonoBehaviour
         Vector3 forward = _camController.transform.forward;
 
         _isGrounded = Physics.CheckBox(_groundCheckPoint.position, _groundCheckSize / 2, _groundCheckPoint.rotation, groundLayer);
-        Physics.OverlapSphere(transform.position + (forward * wallCheckOffset), wallCheckRadius, climbable);
+        _isClimbing = Physics.CheckSphere(transform.position + (forward * wallCheckOffset), wallCheckRadius, climbable);
+
+
+        if (_isGrounded && _movementVelocity.y < 0f)
+        {
+            _movementVelocity.y = -.15f;
+        }
+        else
+        {
+            _movementVelocity.y += gravity * (gravityMult * .5f) * Time.deltaTime;
+        }
     }
 
     private void LateUpdate()
@@ -260,7 +286,7 @@ public class TorsoMovement : MonoBehaviour
         float time = 0;
         Vector3 startPos = transform.position;
         Vector3 endPos = _grapplePoint;
-        while (startPos != endPos)
+        while (Vector3.Distance(startPos, endPos) > grappleOffset) // i hate while loops :sob:
         {
             startPos = transform.position;
             time += Time.deltaTime;
@@ -268,7 +294,6 @@ public class TorsoMovement : MonoBehaviour
             transform.position = Vector3.Lerp(startPos, endPos, time / 5);
             yield return null;
         }
-
 
 
         Invoke(nameof(StopGrapple), 0);
@@ -287,6 +312,7 @@ public class TorsoMovement : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        Vector3 forward = _camController.transform.forward;
         Matrix4x4 originalMatrix = Gizmos.matrix;
 
         Gizmos.matrix = _groundCheckPoint.localToWorldMatrix;
@@ -303,5 +329,8 @@ public class TorsoMovement : MonoBehaviour
         Gizmos.DrawLine(transform.position, transform.position + LastDirection * 2f);
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(transform.position, transform.position + LookingDirection * 2);
+
+        Gizmos.color = Color.purple; // wallcheck
+        Gizmos.DrawWireSphere(transform.position + (forward * wallCheckOffset), wallCheckRadius);
     }
 }
