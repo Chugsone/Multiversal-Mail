@@ -39,8 +39,8 @@ public class combine : MonoBehaviour
         //rotation.z = 0;
 
 
-        //Instantiate(kickhit, position, Quaternion.Euler(rotation));
-        //GameObject hit = Instantiate(kickhit, position, Quaternion.Euler(rotation));
+        //Instantiate(combined, position, Quaternion.Euler(rotation));
+        //GameObject hit = Instantiate(combined, position, Quaternion.Euler(rotation));
         
     }
     private void OnTriggerEnter(Collider hitbox)
