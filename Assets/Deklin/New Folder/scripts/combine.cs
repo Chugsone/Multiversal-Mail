@@ -24,36 +24,40 @@ public class combine : MonoBehaviour
         {
             areTorso = true;
         }
-        if (CompareTag("legs"))
+        if (CompareTag("Legs"))
         {
             areLegs = true;
         }
     }
     public void fullbody(InputAction.CallbackContext ctx)
     {
-        //Vector3 position = transform.position + Camera.main.transform.forward * 2;
-        //position.y = transform.position.y;
+        Vector3 position = transform.position + Camera.main.transform.forward * 2;
+        position.y = transform.position.y;
 
-        //Vector3 rotation = Camera.main.transform.rotation.eulerAngles;
-        //rotation.x = 0;
-        //rotation.z = 0;
+        Vector3 rotation = Camera.main.transform.rotation.eulerAngles;
+        rotation.x = 0;
+        rotation.z = 0;
 
 
-        //Instantiate(combined, position, Quaternion.Euler(rotation));
-        //GameObject hit = Instantiate(combined, position, Quaternion.Euler(rotation));
-        
+        Instantiate(hitbox, position, Quaternion.Euler(rotation));
+        GameObject hit = Instantiate(hitbox, position, Quaternion.Euler(rotation));
+        Debug.Log("combine");
     }
     private void OnTriggerEnter(Collider hitbox)
     {
         if (CompareTag("Torso"))
         {
-            Destroy(torso);
-            Destroy(legs);
+            torso.SetActive(false);
+
+            legs.SetActive(false);
+            Debug.Log("torso");
         }
         if (CompareTag("Legs"))
         {
-            Destroy(torso);
-            Destroy(legs);
+            torso.SetActive(false);
+
+            legs.SetActive(false);
+            Debug.Log("Legs");
         }
     }
 }

@@ -5,6 +5,9 @@ using UnityEngine.InputSystem;
 public class movement : MonoBehaviour
 {
     public float accelerate = 200f;
+    public bool canMove;
+    public GameObject camera;
+    public bool camOn;
     public float topSpeed = 14;
     public Rigidbody rb;
     public bool IsGrounded;
@@ -24,37 +27,55 @@ public class movement : MonoBehaviour
        rb = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        canMove = true;
+        camOn = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        rb.AddForce(movementtttt * accelerate);
-        if (clamping) 
-        { 
-          rb.linearVelocity = new Vector3
-          (
-             Mathf.Clamp(rb.linearVelocity.x, -topSpeed, topSpeed),
-              Mathf.Clamp(rb.linearVelocity.y, -topSpeed, topSpeed),
-             Mathf.Clamp(rb.linearVelocity.z, -topSpeed, topSpeed)
-          );
+        if (camOn == false)
+        {
+            camera.SetActive(false);
         }
-        Vector3 Direction = Camera.main.transform.forward;
-        Direction.y = 0;
+        else 
+        {
+            camera.SetActive(true);
+        }
+        if(canMove == true)
+        {
+            rb.AddForce(movementtttt * accelerate);
+            if (clamping)
+            {
+                rb.linearVelocity = new Vector3
+                (
+                   Mathf.Clamp(rb.linearVelocity.x, -topSpeed, topSpeed),
+                    Mathf.Clamp(rb.linearVelocity.y, -topSpeed, topSpeed),
+                   Mathf.Clamp(rb.linearVelocity.z, -topSpeed, topSpeed)
+                );
+            }
+            Vector3 Direction = Camera.main.transform.forward;
+            Direction.y = 0;
 
-        transform.forward = Direction;
+            transform.forward = Direction;
+        }
+     
     }
     public void Movement(InputAction.CallbackContext ctx)
     {
-        if (MovementSwitch == true)
+        if (canMove == true)
         {
-            moveHorizontal = ctx.ReadValue<Vector2>().x;
-            moveVertical = ctx.ReadValue<Vector2>().y;
+            if (MovementSwitch == true)
+            {
+                moveHorizontal = ctx.ReadValue<Vector2>().x;
+                moveVertical = ctx.ReadValue<Vector2>().y;
 
-            movementtttt = transform.right * moveHorizontal + transform.forward * moveVertical;
-          movementtttt.y = 0;
-        
+                movementtttt = transform.right * moveHorizontal + transform.forward * moveVertical;
+                movementtttt.y = 0;
+
+            }
         }
+       
     }
     public void jump (InputAction.CallbackContext ctx)
     {
@@ -67,33 +88,38 @@ public class movement : MonoBehaviour
     } 
     public void RunningTillNot(InputAction.CallbackContext ctx)
     {
-        if (ctx.performed)
+        if(canMove== true)
         {
-            Running = true;
-            Walk = false;
+            if (ctx.performed)
+            {
+                Running = true;
+                Walk = false;
+
+            }
+            else
+            {
+                Walk = true;
+                Running = false;
+            }
+            if (Running == true)
+            {
+                topSpeed = 20;
+            }
+            else if (IsGrounded == false)
+            {
+                topSpeed = 17;
+            }
+            if (Walk == true)
+            {
+                topSpeed = 14;
+            }
+            else if (IsGrounded == false)
+            {
+                topSpeed = 12;
+            }
 
         }
-        else
-        {
-            Walk = true;
-            Running = false;
-        }
-        if (Running == true)
-        {
-            topSpeed = 20;
-        }
-        else if (IsGrounded == false)
-        {
-            topSpeed =17;
-        }
-        if (Walk == true)
-        {
-            topSpeed = 14;
-        }
-        else if (IsGrounded == false)
-        {
-            topSpeed = 12;
-        }
+       
     }
     void OnCollisionEnter(Collision collision)
     {
