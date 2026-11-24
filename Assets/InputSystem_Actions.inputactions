@@ -125,6 +125,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "combine",
+                    "type": "Button",
+                    "id": "d280eb81-079f-416b-92db-9521a9d7c571",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -545,6 +555,17 @@
                     "action": "Grapple",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "de9d8b07-5ee8-4e34-96a8-f07447a63133",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "combine",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -647,6 +668,16 @@
                     "type": "PassThrough",
                     "id": "9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be",
                     "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "PauseToggle",
+                    "type": "Button",
+                    "id": "5d751338-f63b-4f1a-a371-200c3132f236",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false,
@@ -1069,6 +1100,17 @@
                     "processors": "",
                     "groups": "XR",
                     "action": "TrackedDeviceOrientation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9dd99508-f796-48fb-83a2-50f083e0b3e9",
+                    "path": "<Keyboard>/capsLock",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PauseToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
