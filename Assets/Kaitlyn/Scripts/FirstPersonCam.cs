@@ -1,19 +1,23 @@
 using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FirstPersonCam : MonoBehaviour
 {
     [Header("Target Refs")]
     [Space(3f)]
     public Transform playerBody;
-    private TorsoMovement torso;
+    public TorsoMovement torso;
+    public Image crosshair;
 
     public Transform firstPersonCam;
     [Space(5f)]
     public CinemachineCamera firstPerson;
     public CinemachineCamera sideScroller;
     private CinemachineBrain brain;
+    [Space(5f)]
+
 
     [Header("Camera Settings")]
     [Space(3f)]
@@ -61,6 +65,18 @@ public class FirstPersonCam : MonoBehaviour
         }
 
         _xRotation = playerBody.eulerAngles.y;
+
+        if (crosshair != null)
+        {
+            if (torso.canMove)
+            {
+                crosshair.enabled = true;
+            }
+            else
+            {
+                crosshair.enabled = false;
+            }
+        }
     }
 
 
@@ -114,6 +130,10 @@ public class FirstPersonCam : MonoBehaviour
                 sideScroller.Priority = 10;
 
                 torso.canMove = false;
+                if(crosshair != null)
+                {
+                    crosshair.enabled = false;
+                }
             }
             else if (CinemachineCore.IsLive(sideScroller))
             {
@@ -121,6 +141,10 @@ public class FirstPersonCam : MonoBehaviour
                 sideScroller.Priority = 0;
 
                 torso.canMove = true;
+                if(crosshair != null)
+                {
+                    crosshair.enabled = true;
+                }
             }
         }
     }
