@@ -1,47 +1,51 @@
 using UnityEngine;
-using System;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
-    private bool isPaused;
+    private bool _isPaused;
+    [SerializeField] private GameObject _pauseMenu;
 
-    [SerializeField] private GameObject pauseMenu;
+    // Pause game
     public void Pause(InputAction.CallbackContext ctx)
     {
-
-        isPaused = true;
-        pauseMenu.SetActive(true);
-
-        Time.timeScale = 0;
+        if (!ctx.performed) return; 
+        _isPaused = true;
+        _pauseMenu.SetActive(true);
+        Time.timeScale = 0f;
     }
 
-    private static void SetActive(bool v)
-    {
-        throw new NotImplementedException();
-    }
-
+    // Resume game
     public void Resume(InputAction.CallbackContext ctx)
     {
-        isPaused = false;
-        pauseMenu.SetActive(false);
-
-        Time.timeScale = 1;
+        if (!ctx.performed) return;
+        _isPaused = false;
+        _pauseMenu.SetActive(false);
+        Time.timeScale = 1f;
     }
 
-    public void ResumeButt()
-    {
-        isPaused = false;
-        pauseMenu.SetActive(false);
-
-        Time.timeScale = 1;
-    }
-
+    // Toggle pause state
     public void Toggle(InputAction.CallbackContext ctx)
     {
-        isPaused = !isPaused;
-        pauseMenu.SetActive(isPaused);
+        if (!ctx.performed) return;
+        _isPaused = !_isPaused;
+        _pauseMenu.SetActive(_isPaused); 
+        Time.timeScale = _isPaused ? 0f : 1f; 
+    }
 
-        Time.timeScale = isPaused ? 0 : 1;
+    // Quit to title screen
+    public void Quit()
+    {
+        Time.timeScale = 1f; 
+        SceneManager.LoadScene("Title");
+    }
+
+    // Button To resume incase monkey brain player
+    public void ResumeButton()
+    {
+        _isPaused = false;
+        _pauseMenu.SetActive(false);
+        Time.timeScale = 1f;
     }
 }
