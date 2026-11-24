@@ -2,7 +2,7 @@ using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class CamTest : MonoBehaviour
+public class FirstPersonCam : MonoBehaviour
 {
     [Header("Target Refs")]
     [Space(3f)]

@@ -58,7 +58,7 @@ public class TorsoMovement : MonoBehaviour
     private bool _isClimbing;
 
     [Space(7f)]
-    public CamTest _camController;
+    public FirstPersonCam _camController;
     private InputSystem_Actions _controls;
     private Vector2 _moveInput;
     private Vector3 _movementVelocity;
@@ -134,17 +134,20 @@ public class TorsoMovement : MonoBehaviour
         GameObject camera = _camController.gameObject;
         _camController._MouseInput = _controls.Player.Look.ReadValue<Vector2>();
 
+        Vector3 up = transform.up;
         Vector3 forward = camera.transform.forward; // directions based off cam position :man_juggling:
         Vector3 right = camera.transform.right;
 
+        up.Normalize();
         forward.Normalize();
         right.Normalize();
 
-        Vector3 moveDirection = (forward * _moveInput.y) + (right * _moveInput.x);
+        Vector3 moveDirection;
 
         if (_isClimbing)
         {
-            //moveDirection = new Vector3(0, (forward * _moveInput.y), + (right * _moveInput.x));
+            //if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, groundLayer))
+            moveDirection = (up * _moveInput.y) + (right * _moveInput.x);
         }
         else
         {
@@ -153,8 +156,18 @@ public class TorsoMovement : MonoBehaviour
 
         _isMovingDownSlope = IsMovingDownSlope(moveDirection);
         Vector3 adjustedMoveDirection = AdjustMovementToSlope(moveDirection);
-        adjustedMoveDirection = adjustedMoveDirection.normalized;
-        adjustedMoveDirection.y = _movementVelocity.y;
+
+
+        if (_isClimbing)
+        {
+            moveDirection = moveDirection.normalized;
+        }
+        else
+        {         
+            adjustedMoveDirection = adjustedMoveDirection.normalized;
+            adjustedMoveDirection.y = _movementVelocity.y;
+        }
+
 
         #region direction
 
@@ -168,13 +181,32 @@ public class TorsoMovement : MonoBehaviour
 
         if (_moveInput.magnitude > 0.01f)
         {
-            _movementVelocity.x = adjustedMoveDirection.x * (walkSpeed);
-            _movementVelocity.z = adjustedMoveDirection.z * (walkSpeed);
+            if (_isClimbing)
+            {
+                _movementVelocity.x = moveDirection.x * (climbSpeed);
+                _movementVelocity.z = moveDirection.z * (climbSpeed);
+                _movementVelocity.y = moveDirection.y * (climbSpeed);
+            }
+            else
+            {
+                _movementVelocity.x = adjustedMoveDirection.x * (walkSpeed);
+                _movementVelocity.z = adjustedMoveDirection.z * (walkSpeed);
+            }
+
         }
         else
         {
-            _movementVelocity.x = 0;
-            _movementVelocity.z = 0;         
+            if (_isClimbing)
+            {
+                _movementVelocity.x = 0;
+                _movementVelocity.z = 0;
+                _movementVelocity.y = 0;
+            }
+            else
+            {
+                _movementVelocity.x = 0;
+                _movementVelocity.z = 0;
+            }     
         }
 
         Vector3 finalMovement = (_movementVelocity * Time.deltaTime);
@@ -195,6 +227,10 @@ public class TorsoMovement : MonoBehaviour
         if (_isGrounded && _movementVelocity.y < 0f)
         {
             _movementVelocity.y = -.15f;
+        }
+        else if (_isClimbing)
+        {
+            
         }
         else
         {
