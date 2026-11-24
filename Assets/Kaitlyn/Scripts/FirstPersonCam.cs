@@ -104,18 +104,25 @@ public class FirstPersonCam : MonoBehaviour
         _yRotation = Mathf.Clamp(_yRotation, -verticalMaxAngle, verticalMinAngle);
 
         float currentAngle = Mathf.Clamp(playerBody.rotation.eulerAngles.y, -horizontalDeadzoneAngle, horizontalDeadzoneAngle);
-        if (_xRotation > horizontalDeadzoneAngle)
+        if (torso._isClimbing)
         {
-            float excessRotation = _xRotation - horizontalDeadzoneAngle;
-            playerBody.Rotate(Vector3.up, excessRotation);
-            _xRotation = horizontalDeadzoneAngle;
+            _xRotation = Mathf.Clamp(_xRotation, -horizontalDeadzoneAngle, horizontalDeadzoneAngle);
         }
-        else if (_xRotation < -horizontalDeadzoneAngle)
+        else
         {
-            float excessRotation = _xRotation + horizontalDeadzoneAngle;
-            playerBody.Rotate(Vector3.up, excessRotation);
-            _xRotation = -horizontalDeadzoneAngle;
-        }
+            if (_xRotation > horizontalDeadzoneAngle)
+            {
+                float excessRotation = _xRotation - horizontalDeadzoneAngle;
+                playerBody.Rotate(Vector3.up, excessRotation);
+                _xRotation = horizontalDeadzoneAngle;
+            }
+            else if (_xRotation < -horizontalDeadzoneAngle)
+            {
+                float excessRotation = _xRotation + horizontalDeadzoneAngle;
+                playerBody.Rotate(Vector3.up, excessRotation);
+                _xRotation = -horizontalDeadzoneAngle;
+            }
+        }      
 
         firstPersonCam.localRotation = Quaternion.Euler(_yRotation, _xRotation, 0f);
     }

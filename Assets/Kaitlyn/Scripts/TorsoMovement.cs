@@ -57,7 +57,7 @@ public class TorsoMovement : MonoBehaviour
 
     [SerializeField] private float wallCheckRadius;
     [SerializeField] private float wallCheckOffset;
-    private bool _isClimbing;
+    public bool _isClimbing;
 
     [Space(7f)]
     public FirstPersonCam _camController;
@@ -92,13 +92,28 @@ public class TorsoMovement : MonoBehaviour
             transform.rotation = camRotation;
             _camController._resetXRotation = 0f;
             _camController.SetDefaultRotation();
-            _camController.horizontalDeadzoneAngle = 0f; //so when you look around while walking youll automatically rotate
+            if (_isClimbing)
+            {
+                _camController.horizontalDeadzoneAngle = 50f;
+            }
+            else
+            {
+                _camController.horizontalDeadzoneAngle = 0f; //so when you look around while walking youll automatically rotate
+            }
         };
         _controls.Player.Move.canceled += ctx =>
         {
             _moveInput = Vector2.zero;
             _rb.linearVelocity = Vector2.zero;
-            _camController.horizontalDeadzoneAngle = deadzoneAngle; //reset the deadzone angle when you stop moving
+
+            if (_isClimbing)
+            {
+                _camController.horizontalDeadzoneAngle = 50f;
+            }
+            else
+            {
+                _camController.horizontalDeadzoneAngle = deadzoneAngle; //reset the deadzone angle when you stop moving
+            }       
         };
         #endregion
 
@@ -150,7 +165,7 @@ public class TorsoMovement : MonoBehaviour
 
         if (_isClimbing)
         {
-            if (!Physics.Raycast(transform.position, LastDirection, out RaycastHit hit, wallCheckRadius, climbable) && _isGrounded)
+            if (!Physics.Raycast(transform.position, LastDirection, out RaycastHit hit, wallCheckRadius + 1, climbable) && _isGrounded)
             {
                 moveDirection = (forward * _moveInput.y) + (right * _moveInput.x);
             }
