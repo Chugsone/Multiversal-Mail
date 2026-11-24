@@ -7,6 +7,8 @@ public class FirstPersonCam : MonoBehaviour
     [Header("Target Refs")]
     [Space(3f)]
     public Transform playerBody;
+    private TorsoMovement torso;
+
     public Transform firstPersonCam;
     [Space(5f)]
     public CinemachineCamera firstPerson;
@@ -39,6 +41,7 @@ public class FirstPersonCam : MonoBehaviour
     void Awake()
     {
         brain = Camera.main.gameObject.GetComponent<CinemachineBrain>();
+        torso = FindAnyObjectByType<TorsoMovement>();
     }
 
     void Start()
@@ -109,11 +112,15 @@ public class FirstPersonCam : MonoBehaviour
             {
                 firstPerson.Priority = 0;
                 sideScroller.Priority = 10;
+
+                torso.canMove = false;
             }
             else if (CinemachineCore.IsLive(sideScroller))
             {
                 firstPerson.Priority = 10;
                 sideScroller.Priority = 0;
+
+                torso.canMove = true;
             }
         }
     }

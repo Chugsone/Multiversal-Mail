@@ -17,6 +17,8 @@ public class TorsoMovement : MonoBehaviour
 
     private Rigidbody _rb;
 
+    public bool canMove = true; //i might make this hidden later
+
     [Space(7f)]
     [Header("Ground Check Settings")]
     [Space(3f)]
@@ -83,6 +85,8 @@ public class TorsoMovement : MonoBehaviour
         float deadzoneAngle = _camController.horizontalDeadzoneAngle;
         _controls.Player.Move.performed += ctx =>
         {
+            if (!canMove) return;
+
             _moveInput = ctx.ReadValue<Vector2>();
             Quaternion camRotation = Quaternion.Euler(0f, _camController.transform.eulerAngles.y, 0f);
             transform.rotation = camRotation;
@@ -146,8 +150,14 @@ public class TorsoMovement : MonoBehaviour
 
         if (_isClimbing)
         {
-            //if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, groundLayer))
-            moveDirection = (up * _moveInput.y) + (right * _moveInput.x);
+            if (!Physics.Raycast(transform.position, LastDirection, out RaycastHit hit, wallCheckRadius, climbable) && _isGrounded)
+            {
+                moveDirection = (forward * _moveInput.y) + (right * _moveInput.x);
+            }
+            else
+            {
+                moveDirection = (up * _moveInput.y) + (right * _moveInput.x);
+            }
         }
         else
         {
@@ -304,7 +314,7 @@ public class TorsoMovement : MonoBehaviour
         else
         {
             _grapplePoint = camera.transform.position + camera.transform.forward * maxGrappleDistance;
-            Invoke(nameof(StopGrapple), grappleDelay);
+            StopGrapple();
         }
 
         lr.enabled = true;
@@ -368,5 +378,8 @@ public class TorsoMovement : MonoBehaviour
 
         Gizmos.color = Color.purple; // wallcheck
         Gizmos.DrawWireSphere(transform.position + (forward * wallCheckOffset), wallCheckRadius);
+
+        Gizmos.color = Color.peru; // wallcheck ray
+        Gizmos.DrawLine(transform.position, transform.position + forward * wallCheckRadius);
     }
 }
