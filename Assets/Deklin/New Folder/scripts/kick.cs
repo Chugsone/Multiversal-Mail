@@ -39,7 +39,7 @@ public class kick : MonoBehaviour
         hit.transform.SetParent(transform);
         hit.transform.localScale = new Vector3(scale, scale, scale);
         attacking = true;
-        
+        Debug.Log("M1");
         
         StartCoroutine(TimeTillReset());
 
