@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Android.Gradle.Manifest;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Splines.Interpolators;
@@ -57,6 +56,7 @@ public class TorsoMovement : MonoBehaviour
 
     [SerializeField] private float wallCheckRadius;
     [SerializeField] private float wallCheckOffset;
+    private Vector3 wallCheckPos;
     public bool _isClimbing;
 
     [Space(7f)]
@@ -145,9 +145,14 @@ public class TorsoMovement : MonoBehaviour
             grappleCDTimer -= Time.deltaTime;
         }
 
-        if (_freeze)
+        //if (_freeze)
+        //{
+        //    _rb.linearVelocity = Vector3.zero;
+        //}
+
+        if (_isClimbing)
         {
-            _rb.linearVelocity = Vector3.zero;
+            _camController.horizontalDeadzoneAngle = 50f;
         }
 
         GameObject camera = _camController.gameObject;
@@ -179,6 +184,16 @@ public class TorsoMovement : MonoBehaviour
             moveDirection = (forward * _moveInput.y) + (right * _moveInput.x);
         }
 
+        #region direction
+
+        if (moveDirection.sqrMagnitude > 0.01f)
+        {
+            LastDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
+        }
+
+        LookingDirection = forward.normalized;
+        #endregion
+
         _isMovingDownSlope = IsMovingDownSlope(moveDirection);
         Vector3 adjustedMoveDirection = AdjustMovementToSlope(moveDirection);
 
@@ -193,16 +208,6 @@ public class TorsoMovement : MonoBehaviour
             adjustedMoveDirection.y = _movementVelocity.y;
         }
 
-
-        #region direction
-
-        if (moveDirection.sqrMagnitude > 0.01f)
-        {
-            LastDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
-        }
-
-        LookingDirection = forward.normalized;
-        #endregion
 
         if (_moveInput.magnitude > 0.01f)
         {
@@ -244,9 +249,10 @@ public class TorsoMovement : MonoBehaviour
     private void FixedUpdate()
     {
         Vector3 forward = _camController.transform.forward;
+        wallCheckPos = new Vector3(forward.x, 0,0);
 
         _isGrounded = Physics.CheckBox(_groundCheckPoint.position, _groundCheckSize / 2, _groundCheckPoint.rotation, groundLayer);
-        _isClimbing = Physics.CheckSphere(transform.position + (forward * wallCheckOffset), wallCheckRadius, climbable);
+        _isClimbing = Physics.CheckSphere(transform.position + (wallCheckPos * wallCheckOffset), wallCheckRadius, climbable);
 
 
         if (_isGrounded && _movementVelocity.y < 0f)
@@ -364,7 +370,7 @@ public class TorsoMovement : MonoBehaviour
     public void StopGrapple()
     {
         _grappling = false;
-        _freeze = false;
+        //_freeze = false;
 
         grappleCDTimer = grappleCooldown;
 
@@ -392,7 +398,7 @@ public class TorsoMovement : MonoBehaviour
         Gizmos.DrawLine(transform.position, transform.position + LookingDirection * 2);
 
         Gizmos.color = Color.purple; // wallcheck
-        Gizmos.DrawWireSphere(transform.position + (forward * wallCheckOffset), wallCheckRadius);
+        Gizmos.DrawWireSphere(transform.position + (wallCheckPos * wallCheckOffset), wallCheckRadius);
 
         Gizmos.color = Color.peru; // wallcheck ray
         Gizmos.DrawLine(transform.position, transform.position + forward * wallCheckRadius);
